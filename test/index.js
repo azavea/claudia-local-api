@@ -343,7 +343,7 @@ describe('Unit tests for lib/index', function () {
             const spy = sinon.spy();
             const logger = {
                 error: spy
-            };gi
+            };
             const error = new Error('Fail');
             const res = getRes({}, 500, {
                 message: error.message
@@ -422,7 +422,7 @@ describe('Unit tests for lib/index', function () {
                     expect(controlFlow.done).to.be.a('function');
                 },
                 apiConfig: function () {
-                  return { message: 'This function exists so that the rest of this test does not fail.' };
+                    return { message: 'This function exists so that the rest of this test does not fail.' };
                 }
             };
 

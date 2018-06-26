@@ -420,6 +420,9 @@ describe('Unit tests for lib/index', function () {
                     expect(receivedParams).to.deep.eql(expectedParams);
                     expect(controlFlow).to.have.keys('done');
                     expect(controlFlow.done).to.be.a('function');
+                },
+                apiConfig: function () {
+                    return { message: 'This function exists so that the rest of this test does not fail.' };
                 }
             };
 

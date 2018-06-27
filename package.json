@@ -39,7 +39,7 @@
     "npm": ">= 2.0.0"
   },
   "bin": {
-    "claudia-local-api": "bin/run-dev-server.sh"
+    "claudia-local-api": "--inspect bin/claudia-local-api"
   },
   "scripts": {
     "check-coverage": "istanbul check-coverage",

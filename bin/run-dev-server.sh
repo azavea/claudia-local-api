@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 
-node --inspect bin/claudia-local-api $@
+# Get path to this directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+node --inspect ${DIR}/claudia-local-api $@

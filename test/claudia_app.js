@@ -51,6 +51,13 @@ function bootstrap() {
         }
     });
 
+    app.get('/error',
+        function () {
+            return new ApiBuilder.ApiResponse({message: 'This is an error and shouldn\'t be converted to binary'}, {'Content-Type': 'application/json'}, 500);
+        },
+        { success: { contentHandling: 'CONVERT_TO_BINARY' } }
+    );
+
     return app;
 }
 

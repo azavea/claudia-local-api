@@ -269,6 +269,58 @@ describe('Unit tests for lib/index', function () {
         });
     });
 
+    context('Testing parseContentHandling', function () {
+        it('CASE 1: Should get content handling parameter if it exists', function () {
+            const parseContentHandling = localApi.__get__('parseContentHandling');
+            const params = {
+                requestContext: {
+                    resourcePath: '/tile/{z}/{x}/{y}',
+                    httpMethod: 'GET'
+                }
+            };
+            const app = {
+                apiConfig: function () {
+                    return {
+                        routes: {
+                            'tile/{z}/{x}/{y}': {
+                                GET: {
+                                    success: {
+                                        contentHandling: 'CONVERT_TO_BINARY'
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+            };
+
+            expect(parseContentHandling(params, app)).to.eql('CONVERT_TO_BINARY');
+        });
+
+        it('CASE 2: Should return false if the path does not exist', function () {
+            const parseContentHandling = localApi.__get__('parseContentHandling');
+            const params = {
+                requestContext: {
+                    resourcePath: '/tile/{z}/{x}/{y}',
+                    httpMethod: 'GET'
+                }
+            };
+            const app = {
+                apiConfig: function () {
+                    return {
+                        routes: {
+                            'tile/{z}/{x}/{y}': {
+                                POST: {}
+                            }
+                        }
+                    };
+                }
+            };
+
+            expect(parseContentHandling(params, app)).to.eql(false);
+        });
+    });
+
     context('Testing makeHandleResponse', function () {
         function getRes(expectedHeaders, expectedStatusCode, expectedBody) {
             return {
@@ -284,6 +336,25 @@ describe('Unit tests for lib/index', function () {
 
                 send: function (body) {
                     expect(body).to.deep.eql(expectedBody);
+                    return this;
+                }
+            };
+        }
+
+        function getBinaryRes(expectedHeaders, expectedStatusCode, expectedBody) {
+            return {
+                set: function (headers) {
+                    expect(headers).to.deep.eql(expectedHeaders);
+                    return this;
+                },
+
+                status: function (statusCode) {
+                    expect(statusCode).to.be.eql(expectedStatusCode);
+                    return this;
+                },
+
+                send: function (body) {
+                    expect(body).to.be.instanceof(Buffer);
                     return this;
                 }
             };
@@ -356,6 +427,30 @@ describe('Unit tests for lib/index', function () {
             expect(spy.calledOnce).to.be.eql(true);
             expect(spy.calledWith(expectedResult)).to.be.eql(true);
         });
+
+        it('CASE 4: Should handle binary data', function () {
+            const makeHandleResponse = localApi.__get__('makeHandleResponse');
+            const spy = sinon.spy();
+            const logger = {
+                info: spy
+            };
+            const response = {
+                headers: {
+                    'content-type': 'application/json',
+                    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+                },
+                statusCode: 201,
+                body: 'asdjlaasdfiuaslfuaweliuasldifudif'
+            };
+            const res = getBinaryRes(response.headers, response.statusCode, response.body);
+            const expectedResult = JSON.stringify(response, null, 4);
+
+            const handleResponse = makeHandleResponse(logger, res, 'CONVERT_TO_BINARY');
+            handleResponse(null, response);
+
+            expect(spy.calledOnce).to.be.eql(true);
+            expect(spy.calledWith(expectedResult)).to.be.eql(true);
+        });
     });
 
     context('Testing makeHandleRequest', function () {
@@ -420,6 +515,11 @@ describe('Unit tests for lib/index', function () {
                     expect(receivedParams).to.deep.eql(expectedParams);
                     expect(controlFlow).to.have.keys('done');
                     expect(controlFlow.done).to.be.a('function');
+                },
+                apiConfig: function () {
+                    return {
+                        message: 'This function exists so that the rest of this test does not fail.'
+                    };
                 }
             };
 

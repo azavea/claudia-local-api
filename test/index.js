@@ -977,4 +977,18 @@ describe('Integration tests for lib/index', function () {
                 expect(err.message).to.be.eql('Received statusCode = 500');
             });
     });
+
+    it('CASE 8: Should be able to handle claudia-form wildcard paths', function () {
+        const params = {
+            url: `http://localhost:${port}/wildcard/one/two/three/four`,
+            method: 'GET',
+            timeout: 200
+        };
+        const expected = JSON.stringify({wildcard: 'one/two/three/four'});
+
+        return makeRequest(params)
+            .then(function (result) {
+                expect(result.body).to.deep.eql(expected);
+            });
+    });
 });

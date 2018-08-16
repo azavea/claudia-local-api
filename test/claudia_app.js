@@ -51,6 +51,16 @@ function bootstrap() {
         }
     });
 
+    app.get(
+        '/big',
+        () => new app.ApiResponse(
+            Buffer.alloc(6000001),
+            {},
+            200
+        ),
+        { success: { contentHandling: 'CONVERT_TO_BINARY' } }
+    );
+
     return app;
 }
 

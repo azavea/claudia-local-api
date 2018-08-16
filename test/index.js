@@ -500,6 +500,31 @@ describe('Unit tests for lib/index', function () {
             expect(spy.calledOnce).to.be.eql(true);
             expect(spy.calledWith(expectedResult)).to.be.eql(true);
         });
+
+        it('CASE 5: Should fail if body > 6MB', function () {
+            const makeHandleResponse = localApi.__get__('makeHandleResponse');
+            const spy = sinon.spy();
+            const logger = {
+                info: spy
+            };
+            const response = {
+                headers: {
+                    'content-type': 'image/png'
+                },
+                statusCode: 201,
+                body: Buffer.alloc(6000001).toString()
+            };
+            const expectedResult = {
+                statusCode: 500,
+                body: 'body size is too long'
+            };
+            const res = getRes(expectedResult.headers, expectedResult.statusCode, expectedResult.body);
+
+            const handleResponse = makeHandleResponse(logger, res, 'CONVERT_TO_BINARY');
+            handleResponse(null, response);
+
+            expect(spy.notCalled).to.be.eql(true);
+        });
     });
 
     context('Testing makeHandleRequest', function () {

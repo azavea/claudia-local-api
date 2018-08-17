@@ -58,6 +58,8 @@ function bootstrap() {
         { success: { contentHandling: 'CONVERT_TO_BINARY' } }
     );
 
+    app.get('/wildcard/{wildcard+}', (req) => req.pathParams);
+
     return app;
 }
 

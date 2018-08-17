@@ -477,7 +477,7 @@ describe('Unit tests for lib/index', function () {
             expect(spy.calledWith(expectedResult)).to.be.eql(true);
         });
 
-        it('CASE 4: Should handle binary data', function () {
+        it('CASE 4: Should handle binary data.', function () {
             const makeHandleResponse = localApi.__get__('makeHandleResponse');
             const spy = sinon.spy();
             const logger = {
@@ -492,6 +492,30 @@ describe('Unit tests for lib/index', function () {
                 body: 'asdjlaasdfiuaslfuaweliuasldifudif'
             };
             const res = getBinaryRes(response.headers, response.statusCode, response.body);
+            const expectedResult = JSON.stringify(response, null, 4);
+
+            const handleResponse = makeHandleResponse(logger, res, 'CONVERT_TO_BINARY');
+            handleResponse(null, response);
+
+            expect(spy.calledOnce).to.be.eql(true);
+            expect(spy.calledWith(expectedResult)).to.be.eql(true);
+        });
+
+        it('CASE 5: Don\'t convert to binary if error', function () {
+            const makeHandleResponse = localApi.__get__('makeHandleResponse');
+            const spy = sinon.spy();
+            const logger = {
+                info: spy
+            };
+            const response = {
+                headers: {
+                    'content-type': 'application/json',
+                    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+                },
+                statusCode: 400,
+                body: 'asdjlaasdfiuaslfuaweliuasldifudif'
+            };
+            const res = getRes(response.headers, response.statusCode, response.body);
             const expectedResult = JSON.stringify(response, null, 4);
 
             const handleResponse = makeHandleResponse(logger, res, 'CONVERT_TO_BINARY');
